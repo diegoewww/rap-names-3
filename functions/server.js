@@ -1,9 +1,13 @@
 const express = require('express')
+const serverless = require('serverless-http')
 const app = express()
+const router = express.Router()
 const cors = require('cors')
 const PORT = 8000
 
-app.use(cors())
+// app.use(cors())
+// express.static.mime.types['css'] = 'text/css';
+// app.use(express.static('styles'));
 
 const rappers = {
     '21 savage': {
@@ -24,12 +28,11 @@ const rappers = {
 
 }
 
-app.get('/', (request, response) => {
-    response.sendFile(__dirname + '/index.html')
-
+router.get('/index', (request, response) => {
+    response.sendFile( __dirname +'/../dist/index.html') //falta corregir en netlify
 })
 
-app.get('/api/:rapperName', (request, response) => {
+router.get('/api/:rapperName', (request, response) => {
     const rappersName = request.params.rapperName.toLowerCase()
     if (rappers[rappersName]) {
         response.json(rappers[rappersName])
@@ -38,6 +41,9 @@ app.get('/api/:rapperName', (request, response) => {
     }
 })
 
-app.listen(process.env.PORT || PORT, () => {
-    console.log(`The server is running on port ${PORT}! You better go catch it!`)
-})
+// app.listen(process.env.PORT || PORT, () => {
+//     console.log(`The server is running on port ${PORT}! You better go catch it!`)
+// })
+
+app.use('/.netlify/functions/server', router);
+module.exports.handler = serverless(app)
